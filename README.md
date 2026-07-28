@@ -30,13 +30,31 @@ breaks.
 
 ---
 
-## Quick start (2 minutes)
+## Easiest way: the web app (no command line!) [RECOMMENDED]
+
+You get a friendly chat window in your browser - like chatting on WhatsApp.
+
+1. Install Python once from https://python.org/downloads (tick **"Add Python to
+   PATH"** on Windows).
+2. Download this project (green **Code** button -> **Download ZIP** -> unzip it).
+3. **Double-click the launcher:**
+   - Windows: `start_windows.bat`
+   - Mac: `start_mac.command` (first time: right-click -> Open)
+4. Your browser opens automatically at `http://127.0.0.1:5000`. Click
+   **+ Add Product**, then type requests to the team. Done!
+
+The launcher installs everything it needs the first time, then starts the app.
+
+## Alternative: the terminal version
 
 ```bash
 # 1. install the small free helper libraries
 pip install -r requirements.txt
 
-# 2. start the meeting room
+# 2a. web app:
+python3 web.py
+
+# 2b. or the text-only meeting room:
 python3 run.py
 ```
 
