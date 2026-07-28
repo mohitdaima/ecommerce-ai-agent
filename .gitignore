@@ -1,0 +1,10 @@
+# local generated data (products, tasks, returns, outputs)
+data/*.json
+
+# python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.env

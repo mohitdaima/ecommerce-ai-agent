@@ -1,0 +1,6 @@
+# All free / open-source. No paid API keys required.
+# The AI "brain" runs locally through Ollama (https://ollama.com) - free.
+# These libs are only for HTTP, config parsing and pretty CLI output.
+requests>=2.31.0
+PyYAML>=6.0.1
+rich>=13.7.0

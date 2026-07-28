@@ -1,0 +1,28 @@
+# =====================================================================
+#  E-COMMERCE AI TEAM - configuration
+#  Everything here is FREE. No paid API keys anywhere.
+# =====================================================================
+
+business:
+  name: "My Store"
+  # The marketplaces you sell on (India). Add/remove freely.
+  channels:
+    - "Flipkart"
+    - "Amazon"        # Amazon.in
+    - "Myntra"
+    - "Meesho"
+  currency: "INR"
+  tone: "friendly, professional, trustworthy"
+
+# ---------------------------------------------------------------------
+#  The AI brain. Runs LOCALLY via Ollama = 100% free, no credits.
+#  If Ollama is not installed/running, the system automatically falls
+#  back to built-in templates so it still works (just less "smart").
+# ---------------------------------------------------------------------
+llm:
+  provider: "ollama"          # only free/local option supported
+  host: "http://localhost:11434"
+  model: "llama3.2"           # any free model you have pulled, e.g. llama3.2, qwen2.5, mistral
+  temperature: 0.7
+  timeout_seconds: 120
+  fallback_to_templates: true # keep true so it never fully breaks
