@@ -13,18 +13,25 @@ from __future__ import annotations
 
 import os
 import threading
+import uuid
 import webbrowser
 
 import yaml
-from flask import Flask, jsonify, request, render_template
+from flask import (Flask, jsonify, request, render_template,
+                   send_from_directory)
+from werkzeug.utils import secure_filename
 
 from core.llm import LLM
 from core.store import Store
 from agents.manager import Manager
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+IMAGE_DIR = os.path.join(HERE, "data", "images")
+os.makedirs(IMAGE_DIR, exist_ok=True)
+ALLOWED_EXT = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
 
 app = Flask(__name__, template_folder=os.path.join(HERE, "templates"))
+app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16 MB uploads
 
 # --- load everything once ---------------------------------------------
 with open(os.path.join(HERE, "config.yaml"), "r", encoding="utf-8") as f:
@@ -71,8 +78,9 @@ def chat():
 
 @app.route("/api/product", methods=["POST"])
 def add_product():
-    d = request.get_json(force=True) or {}
-    name = (d.get("name") or "").strip()
+    # Uses multipart form-data so we can accept image files too.
+    f = request.form
+    name = (f.get("name") or "").strip()
     if not name:
         return jsonify({"error": "Product name is required"}), 400
 
@@ -85,17 +93,48 @@ def add_product():
         except (TypeError, ValueError):
             return 0
 
+    # save uploaded images
+    image_files = []
+    for file in request.files.getlist("images"):
+        if not file or not file.filename:
+            continue
+        ext = os.path.splitext(file.filename)[1].lower()
+        if ext not in ALLOWED_EXT:
+            continue
+        fname = f"{uuid.uuid4().hex[:10]}{ext}"
+        file.save(os.path.join(IMAGE_DIR, secure_filename(fname)))
+        image_files.append(fname)
+
     saved = STORE.add_product({
         "name": name,
-        "category": (d.get("category") or "").strip(),
-        "price": (str(d.get("price")) or "").strip(),
-        "cost": (str(d.get("cost")) or "").strip(),
-        "stock": _int(d.get("stock")),
-        "features": _split(d.get("features")),
-        "keywords": _split(d.get("keywords")),
-        "description": (d.get("description") or "").strip(),
+        "category": (f.get("category") or "").strip(),
+        "price": (f.get("price") or "").strip(),
+        "cost": (f.get("cost") or "").strip(),
+        "stock": _int(f.get("stock")),
+        "features": _split(f.get("features")),
+        "keywords": _split(f.get("keywords")),
+        "description": (f.get("description") or "").strip(),
+        "images": image_files,
     })
     return jsonify({"ok": True, "product": saved})
+
+
+@app.route("/media/<path:filename>")
+def media(filename):
+    return send_from_directory(IMAGE_DIR, filename)
+
+
+@app.route("/api/automate", methods=["POST"])
+def automate():
+    """One-click: list a product everywhere, fully automated."""
+    d = request.get_json(force=True) or {}
+    product = None
+    if d.get("product_id"):
+        product = STORE.get_product(d["product_id"])
+    if product is None:
+        return jsonify({"error": "Product not found. Add a product first."}), 400
+    result = MANAGER.automate_listing(product)
+    return jsonify(result)
 
 
 @app.route("/api/products")

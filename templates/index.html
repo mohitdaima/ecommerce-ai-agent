@@ -27,8 +27,29 @@
   .btn { width:100%; padding:11px; border:none; border-radius:10px; cursor:pointer;
     font-size:14px; font-weight:600; margin-top:8px; }
   .btn-primary { background:var(--accent); color:#fff; }
+  .btn-accent { background:var(--accent2); color:#04231a; }
   .btn-ghost { background:var(--panel2); color:var(--text); }
   .btn:hover { filter:brightness(1.1); }
+  .btn:disabled { opacity:.6; cursor:not-allowed; }
+
+  .preview { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+  .preview img { width:60px; height:60px; object-fit:cover; border-radius:8px; border:1px solid #313860; }
+
+  /* product cards inside chat */
+  .pcard { display:flex; gap:12px; align-items:center; background:var(--panel2);
+    border:1px solid #313860; border-radius:12px; padding:12px; margin-top:8px; }
+  .pcard img { width:56px; height:56px; object-fit:cover; border-radius:8px; }
+  .pcard .noimg { width:56px; height:56px; border-radius:8px; background:var(--bg);
+    display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:20px; }
+  .pcard .info { flex:1; font-size:13px; } .pcard .info b { font-size:14px; }
+  .pcard .info small { color:var(--muted); display:block; }
+  .pcard button { padding:9px 14px; border:none; border-radius:9px; cursor:pointer;
+    background:var(--accent2); color:#04231a; font-weight:700; font-size:13px; }
+  .pubcard { background:#12261f; border:1px solid #1f5a44; border-radius:10px;
+    padding:10px 12px; margin-top:8px; font-size:13px; }
+  .pubcard .ch { font-weight:700; color:var(--accent2); }
+  .pubcard .badge { font-size:11px; background:#1f5a44; color:#bff5e2;
+    padding:2px 8px; border-radius:12px; margin-left:6px; }
 
   /* Main */
   .main { flex:1; display:flex; flex-direction:column; }
@@ -80,6 +101,7 @@
     <div class="status">{{ brain_status }}</div>
 
     <button class="btn btn-primary" onclick="openModal()">+ Add Product</button>
+    <button class="btn btn-accent" onclick="openAutomate()">List a Product Everywhere</button>
     <button class="btn btn-ghost" onclick="loadView('products')">View Products</button>
     <button class="btn btn-ghost" onclick="loadView('returns')">View Returns</button>
 
@@ -144,8 +166,12 @@
       <input id="p_keywords" placeholder="e.g. cotton kurta, mens kurta, ethnic wear">
       <label>Short description</label>
       <textarea id="p_desc" rows="3" placeholder="A comfortable everyday cotton kurta..."></textarea>
+      <label>Product photos (you can select several)</label>
+      <input id="p_images" type="file" accept="image/*" multiple onchange="previewImages()">
+      <div id="preview" class="preview"></div>
+      <div class="hint">JPG / PNG / WEBP. These are used for your listings on each site.</div>
       <div class="actions">
-        <button class="btn btn-primary" onclick="saveProduct()">Save Product</button>
+        <button class="btn btn-primary" id="saveBtn" onclick="saveProduct()">Save Product</button>
         <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
       </div>
     </div>
@@ -188,38 +214,120 @@ async function loadView(kind){
   const res = await fetch('/api/'+kind);
   const items = await res.json();
   if(!items.length){ bubble('No '+kind+' yet.', 'system'); return; }
-  let text='';
   if(kind==='products'){
-    text = items.map(p=>`- ${p.name} [${p.id}] | ${p.category||'-'} | price ${p.price||'-'} | stock ${p.stock}`).join('\n');
-    bubble('Your Products:\n'+text, 'agent', 'Product Catalog');
+    renderProductCards(items, false);
   } else {
-    text = items.map(r=>`- ${r.rma} | ${r.product_name} | ${r.channel} | ${r.reason} | ${r.status}`).join('\n');
+    const text = items.map(r=>`- ${r.rma} | ${r.product_name} | ${r.channel} | ${r.reason} | ${r.status}`).join('\n');
     bubble('Returns / RMAs:\n'+text, 'agent', 'Returns');
   }
+}
+
+// Render products as cards; if forAutomate, each has a "List Everywhere" button.
+function renderProductCards(items, forAutomate){
+  const wrap = document.createElement('div');
+  wrap.className = 'msg agent';
+  const tag=document.createElement('div'); tag.className='agent-tag';
+  tag.textContent = forAutomate ? 'Pick a product to list everywhere' : 'Your Products';
+  wrap.appendChild(tag);
+  items.forEach(p=>{
+    const card=document.createElement('div'); card.className='pcard';
+    const img = (p.images&&p.images.length)
+      ? `<img src="/media/${p.images[0]}">`
+      : `<div class="noimg">IMG</div>`;
+    card.innerHTML = img +
+      `<div class="info"><b>${p.name}</b>
+       <small>${p.category||'-'} | price ${p.price||'-'} | stock ${p.stock}</small></div>`;
+    const btn=document.createElement('button');
+    btn.textContent = 'List Everywhere';
+    btn.onclick = ()=>automate(p.id, p.name, btn);
+    card.appendChild(btn);
+    wrap.appendChild(card);
+  });
+  chat.appendChild(wrap); chat.scrollTop = chat.scrollHeight;
+}
+
+async function openAutomate(){
+  const res = await fetch('/api/products');
+  const items = await res.json();
+  if(!items.length){ bubble('Add a product first (click "+ Add Product"), then I can list it everywhere.', 'system'); return; }
+  renderProductCards(items, true);
+}
+
+// The one-click automation.
+async function automate(id, name, btn){
+  if(btn){ btn.disabled=true; btn.textContent='Working...'; }
+  bubble(`List "${name}" on all marketplaces`, 'user');
+  const typing = bubble('The team is preparing everything automatically...', 'typing');
+  try{
+    const res = await fetch('/api/automate', {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({product_id:id})});
+    const data = await res.json();
+    typing.remove();
+    if(data.error){ bubble('Error: '+data.error, 'agent'); return; }
+    (data.steps||[]).forEach(s=> bubble(s.output, 'agent', s.emoji+' '+s.name+' - '+s.role));
+    // publish package
+    const wrap=document.createElement('div'); wrap.className='msg agent';
+    const tag=document.createElement('div'); tag.className='agent-tag';
+    tag.textContent='[BOSS] Max - Ready to publish';
+    wrap.appendChild(tag);
+    (data.publish||[]).forEach(pub=>{
+      const box=document.createElement('div'); box.className='pubcard';
+      const badge = pub.status==='dry-run'
+        ? '<span class="badge">ready - connect account to go live</span>' : '';
+      box.innerHTML = `<div class="ch">${pub.channel}${badge}</div>` +
+        pub.actions.map(a=>`<div>&bull; ${a}</div>`).join('');
+      wrap.appendChild(box);
+    });
+    chat.appendChild(wrap); chat.scrollTop = chat.scrollHeight;
+  }catch(e){ typing.remove(); bubble('Something went wrong. Is the app still running?', 'agent'); }
+  finally{ if(btn){ btn.disabled=false; btn.textContent='List Everywhere'; } }
 }
 
 function openModal(){ document.getElementById('overlay').classList.add('show'); }
 function closeModal(){ document.getElementById('overlay').classList.remove('show'); }
 
+function previewImages(){
+  const box=document.getElementById('preview'); box.innerHTML='';
+  const files=document.getElementById('p_images').files;
+  for(const f of files){
+    const img=document.createElement('img');
+    img.src=URL.createObjectURL(f); box.appendChild(img);
+  }
+}
+
 async function saveProduct(){
   const name = document.getElementById('p_name').value.trim();
   if(!name){ alert('Product name is required'); return; }
-  const payload = {
-    name, category:val('p_cat'), price:val('p_price'), cost:val('p_cost'),
-    stock:val('p_stock'), features:val('p_features'), keywords:val('p_keywords'),
-    description:val('p_desc')
-  };
-  const res = await fetch('/api/product', {method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify(payload)});
-  const data = await res.json();
-  closeModal();
-  if(data.ok){
-    bubble(`Saved "${data.product.name}". Now ask me: "write listings for ${data.product.name}"`, 'system');
-    clearForm();
-  } else { alert(data.error||'Could not save'); }
+  const btn=document.getElementById('saveBtn'); btn.disabled=true; btn.textContent='Saving...';
+  const fd = new FormData();
+  fd.append('name', name);
+  fd.append('category', val('p_cat'));
+  fd.append('price', val('p_price'));
+  fd.append('cost', val('p_cost'));
+  fd.append('stock', val('p_stock'));
+  fd.append('features', val('p_features'));
+  fd.append('keywords', val('p_keywords'));
+  fd.append('description', val('p_desc'));
+  const files=document.getElementById('p_images').files;
+  for(const f of files){ fd.append('images', f); }
+  try{
+    const res = await fetch('/api/product', {method:'POST', body: fd});
+    const data = await res.json();
+    closeModal();
+    if(data.ok){
+      const imgNote = (data.product.images&&data.product.images.length)
+        ? ` with ${data.product.images.length} photo(s)` : '';
+      bubble(`Saved "${data.product.name}"${imgNote}. Click "List a Product Everywhere" to auto-list it, or ask me anything.`, 'system');
+      clearForm();
+    } else { alert(data.error||'Could not save'); }
+  }catch(e){ alert('Could not save. Is the app still running?'); }
+  finally{ btn.disabled=false; btn.textContent='Save Product'; }
 }
 function val(id){ return document.getElementById(id).value; }
-function clearForm(){ ['p_name','p_cat','p_price','p_cost','p_stock','p_features','p_keywords','p_desc'].forEach(i=>document.getElementById(i).value=''); }
+function clearForm(){
+  ['p_name','p_cat','p_price','p_cost','p_stock','p_features','p_keywords','p_desc','p_images'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('preview').innerHTML='';
+}
 </script>
 </body>
 </html>

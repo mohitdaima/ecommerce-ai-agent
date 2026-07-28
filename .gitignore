@@ -1,5 +1,6 @@
-# local generated data (products, tasks, returns, outputs)
+# local generated data (products, tasks, returns, outputs) + uploaded images
 data/*.json
+data/images/
 
 # python
 __pycache__/

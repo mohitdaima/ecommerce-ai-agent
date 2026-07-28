@@ -14,6 +14,7 @@ from core.agent import Agent
 from core.llm import LLM
 from core.store import Store
 from agents import SPECIALISTS
+from channels import get_connectors
 
 
 class Manager:
@@ -27,6 +28,8 @@ class Manager:
         self.config = config
         # instantiate the whole team
         self.team = {cls.name: cls(llm, store, config) for cls in SPECIALISTS}
+        # marketplace connectors (dry-run until real APIs are added)
+        self.connectors = get_connectors(config)
 
     # -- routing --------------------------------------------------------
     def route(self, task: str) -> list[Agent]:
@@ -87,8 +90,62 @@ class Manager:
             "results": results,
         }
 
+    # -- one-click automation ------------------------------------------
+    def automate_listing(self, product: dict) -> dict:
+        """
+        Run the FULL 'list this product everywhere' pipeline automatically:
+          1) Livia writes listings for every marketplace
+          2) Piero sets prices per marketplace
+          3) Seon generates SEO keywords/tags
+          4) Mara creates marketing/hashtags
+          5) Each marketplace connector prepares/publishes the package
+        Returns a structured result the UI can render.
+        """
+        steps = []
+        pipeline = [
+            (self.team["Livia"], "write full listings for all marketplaces"),
+            (self.team["Piero"], "set the best price for every marketplace"),
+            (self.team["Seon"], "generate SEO keywords and marketplace tags"),
+            (self.team["Mara"], "create social captions and hashtags"),
+        ]
+        listing_text = ""
+        for agent, task in pipeline:
+            output = agent.handle(task, product)
+            self.store.add_task(f"[AUTO] {task}", agent.name)
+            steps.append({"emoji": agent.emoji, "name": agent.name,
+                          "role": agent.role, "output": output})
+            if agent.name == "Livia":
+                listing_text = output
+
+        # publish package per marketplace (dry-run until real API connected)
+        price = _to_float(product.get("price"))
+        stock = product.get("stock", 0)
+        publish = []
+        for ch, connector in self.connectors.items():
+            r1 = connector.publish_listing(product, listing_text)
+            actions = [r1["message"]]
+            if price:
+                actions.append(connector.update_price(product, price)["message"])
+            if isinstance(stock, (int, float)):
+                actions.append(connector.sync_stock(product, int(stock))["message"])
+            publish.append({
+                "channel": ch,
+                "status": r1["status"],   # 'dry-run' until real API added
+                "actions": actions,
+            })
+
+        return {"product": product.get("name"), "steps": steps, "publish": publish}
+
     def roster_text(self) -> str:
         lines = [f"{self.emoji} {self.name} - {self.role} (that's me!)"]
         for a in self.team.values():
             lines.append(f"{a.emoji} {a.name} - {a.role}")
         return "\n".join(lines)
+
+
+def _to_float(v) -> float:
+    try:
+        return float(str(v).replace("Rs", "").replace("INR", "")
+                     .replace(",", "").strip())
+    except (TypeError, ValueError):
+        return 0.0

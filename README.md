@@ -41,7 +41,19 @@ You get a friendly chat window in your browser - like chatting on WhatsApp.
    - Windows: `start_windows.bat`
    - Mac: `start_mac.command` (first time: right-click -> Open)
 4. Your browser opens automatically at `http://127.0.0.1:5000`. Click
-   **+ Add Product**, then type requests to the team. Done!
+   **+ Add Product** (you can upload photos), then either type requests to the
+   team or click **List a Product Everywhere** for one-click automation. Done!
+
+### One-click automation
+Click **List a Product Everywhere**, pick a product, and the whole team runs
+automatically: Livia writes listings for every marketplace, Piero sets prices,
+Seon does SEO, Mara makes hashtags, and a ready-to-publish package is prepared
+for Flipkart, Amazon, Myntra and Meesho.
+
+> Note: publishing runs in safe "dry-run" mode (shows exactly what will be
+> posted) until you connect a real marketplace API. Amazon.in and Flipkart
+> offer free official APIs (seller-account approval required); Meesho/Myntra
+> have no open public API, so those stay assisted (prepared for you to upload).
 
 The launcher installs everything it needs the first time, then starts the app.
 
