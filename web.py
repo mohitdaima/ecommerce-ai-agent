@@ -55,6 +55,9 @@ def index():
         currency=biz.get("currency", "INR"),
         brain_status=LLM_BRAIN.status_line(),
         team=team,
+        language=biz.get("language", "english"),
+        gst_percent=biz.get("gst_percent", 18),
+        category=biz.get("category", "general"),
     )
 
 
@@ -122,6 +125,31 @@ def add_product():
 @app.route("/media/<path:filename>")
 def media(filename):
     return send_from_directory(IMAGE_DIR, filename)
+
+
+@app.route("/api/settings", methods=["POST"])
+def settings():
+    """Update India settings (language / GST / category) live + persist them."""
+    d = request.get_json(force=True) or {}
+    biz = CONFIG.setdefault("business", {})
+    if d.get("language") in ("english", "hindi", "hinglish"):
+        biz["language"] = d["language"]
+    if str(d.get("gst_percent", "")).strip():
+        try:
+            biz["gst_percent"] = int(d["gst_percent"])
+        except (TypeError, ValueError):
+            pass
+    if (d.get("category") or "").strip():
+        biz["category"] = d["category"].strip().lower()
+    # persist to config.yaml so it survives restarts
+    try:
+        with open(os.path.join(HERE, "config.yaml"), "w", encoding="utf-8") as f:
+            yaml.safe_dump(CONFIG, f, sort_keys=False, allow_unicode=True)
+    except Exception:
+        pass
+    return jsonify({"ok": True, "language": biz.get("language"),
+                    "gst_percent": biz.get("gst_percent"),
+                    "category": biz.get("category")})
 
 
 @app.route("/api/automate", methods=["POST"])

@@ -1,6 +1,8 @@
 # =====================================================================
 #  E-COMMERCE AI TEAM - configuration
 #  Everything here is FREE. No paid API keys anywhere.
+#  Tip: you can change language / GST / category right inside the web app
+#       (top of the screen) - no need to edit this file.
 # =====================================================================
 
 business:
@@ -13,6 +15,21 @@ business:
     - "Meesho"
   currency: "INR"
   tone: "friendly, professional, trustworthy"
+
+  # --- India settings -------------------------------------------------
+  # Language for listings, captions and replies:
+  #   english  | hindi  | hinglish (Hindi + English mix, popular for social)
+  language: "english"
+
+  # Your product's GST slab (%). Common slabs: 5, 12, 18, 28.
+  # Used by the Pricing agent to show GST and true take-home.
+  gst_percent: 18
+
+  # Your MAIN product category - lets the Pricing agent use category-accurate
+  # marketplace commissions. Supported keys (others fall back to a default):
+  #   apparel | electronics | home_kitchen | beauty | books | toys |
+  #   footwear | jewellery | mobile_accessories | general
+  category: "apparel"
 
 # ---------------------------------------------------------------------
 #  The AI brain. Runs LOCALLY via Ollama = 100% free, no credits.

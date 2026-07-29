@@ -59,6 +59,11 @@
   .chips { display:flex; gap:6px; flex-wrap:wrap; }
   .chip { background:var(--panel2); color:var(--muted); font-size:11px;
     padding:4px 10px; border-radius:20px; }
+  .settings { display:flex; gap:12px; flex-wrap:wrap; }
+  .settings label { font-size:11px; color:var(--muted); display:flex;
+    flex-direction:column; gap:3px; }
+  .settings select { background:var(--bg); color:var(--text); border:1px solid #313860;
+    border-radius:8px; padding:5px 8px; font-size:13px; }
 
   .chat { flex:1; overflow-y:auto; padding:24px; display:flex; flex-direction:column; gap:16px; }
   .msg { max-width:80%; padding:13px 16px; border-radius:14px; font-size:14px;
@@ -120,10 +125,33 @@
         <h1>Team Meeting Room</h1>
         <p>Tell the team what you need in plain English</p>
       </div>
-      <div class="chips">
-        {% for c in channels %}<span class="chip">{{ c }}</span>{% endfor %}
-        <span class="chip">{{ currency }}</span>
+      <div class="settings">
+        <label>Language
+          <select id="set_lang" onchange="saveSettings()">
+            <option value="english" {{ 'selected' if language=='english' }}>English</option>
+            <option value="hinglish" {{ 'selected' if language=='hinglish' }}>Hinglish</option>
+            <option value="hindi" {{ 'selected' if language=='hindi' }}>Hindi</option>
+          </select>
+        </label>
+        <label>GST %
+          <select id="set_gst" onchange="saveSettings()">
+            {% for g in [0,5,12,18,28] %}
+              <option value="{{ g }}" {{ 'selected' if gst_percent==g }}>{{ g }}%</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>Category
+          <select id="set_cat" onchange="saveSettings()">
+            {% for c in ['apparel','electronics','home_kitchen','beauty','books','toys','footwear','jewellery','mobile_accessories','general'] %}
+              <option value="{{ c }}" {{ 'selected' if category==c }}>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </label>
       </div>
+    </div>
+    <div class="chips" style="padding:8px 24px 0">
+      {% for c in channels %}<span class="chip">{{ c }}</span>{% endfor %}
+      <span class="chip">{{ currency }}</span>
     </div>
 
     <div class="chat" id="chat">
@@ -191,6 +219,20 @@ function bubble(text, cls, tag){
 }
 
 function quick(el){ input.value = el.textContent; send(); }
+
+async function saveSettings(){
+  const payload = {
+    language: document.getElementById('set_lang').value,
+    gst_percent: document.getElementById('set_gst').value,
+    category: document.getElementById('set_cat').value,
+  };
+  const res = await fetch('/api/settings', {method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(payload)});
+  const data = await res.json();
+  if(data.ok){
+    bubble(`Settings updated: language=${data.language}, GST=${data.gst_percent}%, category=${data.category}. The team will use these from now on.`, 'system');
+  }
+}
 
 async function send(){
   const message = input.value.trim();

@@ -34,8 +34,24 @@ class Agent:
             f"You are {self.name}, the {self.role} for an e-commerce business "
             f"named '{self.business.get('name', 'the store')}'. "
             f"Tone: {self.business.get('tone', 'professional')}. "
-            f"Be concise, practical and ready-to-use."
+            f"Be concise, practical and ready-to-use.{self._language_clause()}"
         )
+
+    def _language_clause(self) -> str:
+        """Instruction so the LLM writes in the owner's chosen language."""
+        lang = str(self.business.get("language", "english")).lower()
+        if lang == "hindi":
+            return (" Write your output in Hindi (Devanagari script), suitable "
+                    "for Indian customers.")
+        if lang == "hinglish":
+            return (" Write your output in Hinglish - a natural mix of Hindi and "
+                    "English written in Roman/English letters, the way popular "
+                    "Indian brands write on social media.")
+        return ""
+
+    @property
+    def language(self) -> str:
+        return str(self.business.get("language", "english")).lower()
 
     def _build_prompt(self, task: str, product: dict | None) -> str:
         base = f"Task from the business owner: {task}\n"
