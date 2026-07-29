@@ -57,6 +57,7 @@ def index():
         team=team,
         language=biz.get("language", "english"),
         gst_percent=biz.get("gst_percent", 18),
+        gst_mode=biz.get("gst_mode", "inclusive"),
         category=biz.get("category", "general"),
     )
 
@@ -139,6 +140,8 @@ def settings():
             biz["gst_percent"] = int(d["gst_percent"])
         except (TypeError, ValueError):
             pass
+    if d.get("gst_mode") in ("inclusive", "extra"):
+        biz["gst_mode"] = d["gst_mode"]
     if (d.get("category") or "").strip():
         biz["category"] = d["category"].strip().lower()
     # persist to config.yaml so it survives restarts
@@ -149,6 +152,7 @@ def settings():
         pass
     return jsonify({"ok": True, "language": biz.get("language"),
                     "gst_percent": biz.get("gst_percent"),
+                    "gst_mode": biz.get("gst_mode"),
                     "category": biz.get("category")})
 
 

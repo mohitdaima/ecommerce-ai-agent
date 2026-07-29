@@ -140,6 +140,12 @@
             {% endfor %}
           </select>
         </label>
+        <label>GST mode
+          <select id="set_gstmode" onchange="saveSettings()">
+            <option value="inclusive" {{ 'selected' if gst_mode=='inclusive' }}>Inclusive</option>
+            <option value="extra" {{ 'selected' if gst_mode=='extra' }}>Extra (on top)</option>
+          </select>
+        </label>
         <label>Category
           <select id="set_cat" onchange="saveSettings()">
             {% for c in ['apparel','electronics','home_kitchen','beauty','books','toys','footwear','jewellery','mobile_accessories','general'] %}
@@ -224,13 +230,14 @@ async function saveSettings(){
   const payload = {
     language: document.getElementById('set_lang').value,
     gst_percent: document.getElementById('set_gst').value,
+    gst_mode: document.getElementById('set_gstmode').value,
     category: document.getElementById('set_cat').value,
   };
   const res = await fetch('/api/settings', {method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify(payload)});
   const data = await res.json();
   if(data.ok){
-    bubble(`Settings updated: language=${data.language}, GST=${data.gst_percent}%, category=${data.category}. The team will use these from now on.`, 'system');
+    bubble(`Settings updated: language=${data.language}, GST=${data.gst_percent}% (${data.gst_mode}), category=${data.category}. The team will use these from now on.`, 'system');
   }
 }
 
@@ -312,11 +319,17 @@ async function automate(id, name, btn){
     const tag=document.createElement('div'); tag.className='agent-tag';
     tag.textContent='[BOSS] Max - Ready to publish';
     wrap.appendChild(tag);
+    const BADGES = {
+      'dry-run': 'ready - add API keys to go live',
+      'exported': 'saved to bulk-upload file',
+      'published': 'PUBLISHED LIVE',
+      'updated': 'updated live',
+      'error': 'needs attention'
+    };
     (data.publish||[]).forEach(pub=>{
       const box=document.createElement('div'); box.className='pubcard';
-      const badge = pub.status==='dry-run'
-        ? '<span class="badge">ready - connect account to go live</span>' : '';
-      box.innerHTML = `<div class="ch">${pub.channel}${badge}</div>` +
+      const label = BADGES[pub.status] || pub.status;
+      box.innerHTML = `<div class="ch">${pub.channel}<span class="badge">${label}</span></div>` +
         pub.actions.map(a=>`<div>&bull; ${a}</div>`).join('');
       wrap.appendChild(box);
     });

@@ -22,6 +22,10 @@ CATEGORY_FEES = {
         "apparel": 0.32, "footwear": 0.30, "beauty": 0.25, "jewellery": 0.28,
         "_default": 0.30,
     },
+    "Ajio": {
+        "apparel": 0.30, "footwear": 0.28, "beauty": 0.24, "jewellery": 0.26,
+        "_default": 0.29,
+    },
     "Meesho": {
         "apparel": 0.03, "electronics": 0.02, "home_kitchen": 0.03,
         "beauty": 0.03, "_default": 0.03,
@@ -67,10 +71,11 @@ class PricingAgent(Agent):
                     "pricing math. Add one and ask again.")
 
         gst = float(self.business.get("gst_percent", 18))
+        gst_mode = str(self.business.get("gst_mode", "inclusive")).lower()
         category = p.get("category") or self.business.get("category", "general")
 
         out = [f"=== PRICING (INR) for {p.get('name','product')} ==="]
-        out.append(f"Category: {category}  |  GST slab: {int(gst)}%")
+        out.append(f"Category: {category}  |  GST: {int(gst)}% ({gst_mode})")
         if cost:
             out.append(f"Unit cost: Rs {cost:.2f}")
         out.append("")
@@ -78,9 +83,17 @@ class PricingAgent(Agent):
         best_net, best_ch = -1e9, None
         for ch in self.channels:
             fee = self._fee_for(ch, category)
-            list_price = round(base * (1 + fee), 2)          # cover the fee
-            gst_component = round(list_price - list_price / (1 + gst / 100), 2)
-            fee_amount = round(list_price * fee, 2)
+            # base already targets covering the marketplace fee
+            pre_gst = base * (1 + fee)
+            if gst_mode == "extra":
+                # GST added on top -> buyer pays more, GST is separate
+                gst_component = round(pre_gst * gst / 100, 2)
+                list_price = round(pre_gst + gst_component, 2)
+            else:  # inclusive
+                list_price = round(pre_gst, 2)
+                gst_component = round(list_price - list_price / (1 + gst / 100), 2)
+            fee_amount = round(list_price * fee, 2) if gst_mode == "extra" \
+                else round(list_price * fee, 2)
             net = round(list_price - fee_amount - gst_component, 2)
             margin = net - cost if cost else None
             if net > best_net:
@@ -93,8 +106,9 @@ class PricingAgent(Agent):
             )
         if best_ch:
             out.append(f"\nBest take-home: {best_ch} (Rs {best_net:.2f} net).")
-        out.append("Note: assumes list price is GST-inclusive (as shown to "
-                   "buyers). Input tax credit not included.")
+        note = ("GST is added on top of your price." if gst_mode == "extra"
+                else "List price is GST-inclusive (as buyers see it).")
+        out.append(f"Note: {note} Input tax credit not included.")
         return "\n".join(out)
 
 

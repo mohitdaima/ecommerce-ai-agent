@@ -1,6 +1,10 @@
 # local generated data (products, tasks, returns, outputs) + uploaded images
 data/*.json
 data/images/
+data/exports/
+
+# private API keys - NEVER commit these
+secrets.yaml
 
 # python
 __pycache__/

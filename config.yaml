@@ -13,8 +13,14 @@ business:
     - "Amazon"        # Amazon.in
     - "Myntra"
     - "Meesho"
+    - "Ajio"
   currency: "INR"
   tone: "friendly, professional, trustworthy"
+
+  # How GST is applied to your list price:
+  #   inclusive -> the price buyers see already includes GST (most marketplaces)
+  #   extra     -> GST is added on top of your base price
+  gst_mode: "inclusive"
 
   # --- India settings -------------------------------------------------
   # Language for listings, captions and replies:

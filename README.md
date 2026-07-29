@@ -132,7 +132,34 @@ requires connecting *your own* marketplace accounts and is risky to fully
 automate. The code has clear "connector" slots (`channels/`) so you can wire in
 each marketplace's official (free) API later when you're ready.
 
+## Connecting real marketplaces (going live)
+
+By default everything is safe: Amazon/Flipkart run in **dry-run** (show what
+they would post) and Myntra/Meesho/Ajio generate a **bulk-upload CSV** in
+`data/exports/` that you upload in their seller panels.
+
+| Marketplace | How it connects | What you need |
+|-------------|-----------------|---------------|
+| **Amazon.in** | Official SP-API (live posting) | Free SP-API app + Professional seller (approval needed) |
+| **Flipkart** | Official Marketplace API (live posting) | Free Flipkart app credentials (approval needed) |
+| **Myntra** | Bulk-catalog CSV export | Nothing - just upload the file |
+| **Meesho** | Bulk-catalog CSV export | Nothing - just upload the file |
+| **Ajio** | Bulk-catalog CSV export | Nothing - just upload the file |
+
+To enable live posting on Amazon/Flipkart:
+1. Copy `secrets.example.yaml` to `secrets.yaml`
+2. Paste your API keys into it (links to get them are inside the file)
+3. Restart the app - those marketplaces now publish live
+
+`secrets.yaml` is git-ignored, so your keys never leave your PC.
+
+> Honesty note: the Amazon/Flipkart connectors implement the real API calls but
+> have not been tested against a live account here - you plug in your keys and
+> verify. Myntra/Meesho/Ajio have no public API, so CSV export is the correct
+> free method for them.
+
 ## Configure your store
-Edit `config.yaml` to set your store name, the marketplaces you sell on, your
-currency, and which free Ollama model to use.
+Edit `config.yaml` (or use the settings dropdowns at the top of the web app) to
+set your store name, marketplaces, currency, language, GST slab/mode, category,
+and which free Ollama model to use.
 ```
