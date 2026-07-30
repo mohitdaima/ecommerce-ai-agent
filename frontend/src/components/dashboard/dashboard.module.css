@@ -1,0 +1,166 @@
+/* ---- App header ---- */
+.header {
+  height: var(--header-h);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+.headerInner {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+.brand {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.01em;
+}
+.brandAI {
+  color: var(--color-primary);
+}
+.headerSpacer {
+  flex: 1;
+}
+.commandTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 34px;
+  padding: 0 var(--space-3);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  font-size: var(--fs-md);
+  cursor: pointer;
+}
+.commandTrigger:hover {
+  background: var(--color-bg);
+}
+
+/* ---- Morning summary ---- */
+.summary {
+  margin-top: var(--space-8);
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, #ffffff 0%, var(--color-surface-2) 100%);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+.summaryGreeting {
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.02em;
+}
+.summaryLine {
+  margin-top: var(--space-2);
+  font-size: var(--fs-lg);
+  color: var(--color-text-muted);
+}
+.stats {
+  margin-top: var(--space-5);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+}
+.stat {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+}
+.statValue {
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-bold);
+}
+.statLabel {
+  font-size: var(--fs-sm);
+  color: var(--color-text-subtle);
+  margin-top: 2px;
+}
+
+/* ---- Watching (compact rows) ---- */
+.watchRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+.watchRow + .watchRow {
+  margin-top: var(--space-2);
+}
+.watchTitle {
+  font-weight: var(--fw-medium);
+}
+.watchMeta {
+  color: var(--color-text-subtle);
+  font-size: var(--fs-sm);
+}
+
+/* ---- Activity feed ---- */
+.feed {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  overflow: hidden;
+}
+.feedItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+}
+.feedItem + .feedItem {
+  border-top: 1px solid var(--color-border);
+}
+.feedDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-success);
+  flex-shrink: 0;
+}
+.feedText {
+  flex: 1;
+  font-size: var(--fs-md);
+}
+.feedActor {
+  color: var(--color-text-subtle);
+  font-size: var(--fs-sm);
+}
+.feedTime {
+  color: var(--color-text-subtle);
+  font-size: var(--fs-sm);
+  white-space: nowrap;
+}
+
+/* ---- Batch approve button in section header ---- */
+.batchBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 32px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-primary);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+}
+.batchBtn:hover {
+  background: #e4e7fd;
+}
+
+@media (max-width: 720px) {
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

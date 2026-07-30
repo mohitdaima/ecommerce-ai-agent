@@ -1,0 +1,116 @@
+.card {
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+.card + .card {
+  margin-top: var(--space-3);
+}
+.selected {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+.agentTag {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.spacer {
+  flex: 1;
+}
+
+.title {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semibold);
+  line-height: 1.35;
+}
+.recommendation {
+  font-size: var(--fs-base);
+  color: var(--color-text-muted);
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+.impact {
+  font-size: var(--fs-base);
+  color: var(--color-impact);
+}
+.impactTime {
+  color: var(--color-text-subtle);
+}
+
+.whyToggle {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-primary);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+}
+.why {
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  font-size: var(--fs-md);
+  color: var(--color-text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.whyLabel {
+  font-weight: var(--fw-semibold);
+  color: var(--color-text);
+}
+.whyList {
+  margin: 0;
+  padding-left: var(--space-5);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-top: var(--space-1);
+}
+
+.editRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.editInput {
+  width: 100%;
+  font-family: inherit;
+  font-size: var(--fs-base);
+  color: var(--color-text);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  resize: vertical;
+  background: var(--color-surface);
+}
+
+@media (max-width: 640px) {
+  .actions {
+    justify-content: space-between;
+  }
+}
