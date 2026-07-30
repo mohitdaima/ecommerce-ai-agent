@@ -1,0 +1,58 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(16, 24, 40, 0.35);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 12vh;
+  z-index: 50;
+}
+.panel {
+  width: min(560px, 92vw);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-pop);
+  overflow: hidden;
+}
+.inputRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+.prompt {
+  color: var(--color-text-subtle);
+  font-size: var(--fs-lg);
+}
+.input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: var(--fs-lg);
+  color: var(--color-text);
+  background: transparent;
+}
+.hint {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--fs-sm);
+  color: var(--color-text-subtle);
+  background: var(--color-surface-2);
+}
+.log {
+  max-height: 240px;
+  overflow-y: auto;
+  padding: var(--space-2) var(--space-4) var(--space-4);
+}
+.msg {
+  font-size: var(--fs-md);
+  padding: var(--space-2) 0;
+}
+.msgUser {
+  color: var(--color-text);
+}
+.msgAI {
+  color: var(--color-text-muted);
+}

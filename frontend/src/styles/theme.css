@@ -1,0 +1,74 @@
+/* =========================================================================
+   Design tokens. ALL visual values live here as CSS variables so nothing is
+   hardcoded in components. Change the brand in one place.
+   ========================================================================= */
+:root {
+  /* neutrals */
+  --color-bg: #f7f8fa;
+  --color-surface: #ffffff;
+  --color-surface-2: #fbfcfd;
+  --color-border: #e6e8ee;
+  --color-border-strong: #d3d7e0;
+  --color-text: #171a22;
+  --color-text-muted: #5b6472;
+  --color-text-subtle: #8a93a3;
+
+  /* brand */
+  --color-primary: #4f46e5;
+  --color-primary-hover: #4338ca;
+  --color-primary-soft: #eef0fe;
+  --color-focus-ring: #a5b4fc;
+
+  /* risk tiers */
+  --tier-green-fg: #0f7a4d;
+  --tier-green-bg: #e6f6ee;
+  --tier-amber-fg: #9a6600;
+  --tier-amber-bg: #fdf3e0;
+  --tier-red-fg: #b42318;
+  --tier-red-bg: #fdeceb;
+
+  /* semantic */
+  --color-success: #0f7a4d;
+  --color-danger: #b42318;
+  --color-impact: #0f7a4d;
+
+  /* elevation */
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
+  --shadow-md: 0 4px 12px rgba(16, 24, 40, 0.08);
+  --shadow-pop: 0 12px 40px rgba(16, 24, 40, 0.16);
+
+  /* radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-pill: 999px;
+
+  /* spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+  /* typography */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter,
+    Helvetica, Arial, sans-serif;
+  --font-mono: "SFMono-Regular", ui-monospace, Menlo, Consolas, monospace;
+  --fs-xs: 11px;
+  --fs-sm: 12px;
+  --fs-md: 13px;
+  --fs-base: 14px;
+  --fs-lg: 16px;
+  --fs-xl: 20px;
+  --fs-2xl: 26px;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  /* layout */
+  --container-max: 960px;
+  --header-h: 60px;
+}
